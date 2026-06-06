@@ -47,10 +47,20 @@ app.use("/api/ai", aiRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+// --- MODIFIED BOTTOM BLOCK FOR VERCEL ---
+
 const PORT = process.env.PORT || 8000;
 
-connectDB().then(() => {
+// 1. Establish database connection out in the global scope
+// Serverless environments reuse open connections across function invocations
+connectDB().catch((err) => console.error("Initial DB connection fallback error:", err));
+
+// 2. ONLY start a continuous listening process if running LOCALLY
+if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Local development server running on http://localhost:${PORT}`);
   });
-});
+}
+
+// 3. CRITICAL FOR VERCEL: Export the app instance 
+export default app;
