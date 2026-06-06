@@ -3,6 +3,7 @@ import axios from "axios";
 // Dynamically picks up your live Vercel backend URL in production, or falls back to localhost locally
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
@@ -19,7 +20,7 @@ api.interceptors.response.use(
       if (path !== "/login" && path !== "/register" && path !== "/") {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        window.location.href = "/login";
+        console.warn("Session expired. Redirecting handled via Auth Routing.");
       }
     }
     return Promise.reject(err);
